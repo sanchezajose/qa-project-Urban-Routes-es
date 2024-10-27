@@ -139,8 +139,8 @@ Aparecerá una ventana nueva.
 ### Archivos dentro del proyecto (qa-project-Urban-Grocers-app-es)
 - Main.py 
 - Data.py
-- Metodos.py
-- Telephone_code.py
+- Urban_Routes_Page.py
+- Helpers.py
 - .gitignore
 - ReadMe.md
 
@@ -149,12 +149,11 @@ Aparecerá una ventana nueva.
 Este archivo contiene los Test Cases de la pagina Urban Routes
 ```sh
 import data
-import time
 from selenium import webdriver
-from Metodos import UrbanRoutesPage
-from Telephone_code import retrieve_phone_code
-from Telephone_code import wait_for_load_page
-from Telephone_code import wait_for_driver_arrival_message
+from Urban_Routes_Pages import UrbanRoutesPage
+from Helpers import retrieve_phone_code
+from Helpers import wait_for_load_page
+from Helpers import wait_for_driver_arrival_message
 
 
 class TestUrbanRoutes:
@@ -179,17 +178,18 @@ class TestUrbanRoutes:
         address_to = data.address_to
         self.routes_page.set_route(address_from, address_to)
         assert self.routes_page.get_from() == address_from
-        assert self.routes_page.get_to() == address_to
-        time.sleep(7)
+        assert self.routes_page.get_to() == address_to 
 
     # 2 Selecciona la opción Comfort
+    # correcion con el localizador
     def test_request_taxi_comfort(self):
         self.test_set_route()
         self.routes_page.click_request_taxi_button()
+        self.routes_page.wait_load_comfort_taxi()
         self.routes_page.click_comfort_button()
-        taxi_type = self.routes_page.get_comfort_taxi()
-        assert 'Comfort' == taxi_type
-        time.sleep(7)
+        taxi_type = self.routes_page.get_comfort_text()
+        assert taxi_type == 'Comfort'
+
 
     # 3 Agrega el número telefonico
     def test_add_phone_number(self):
@@ -203,9 +203,9 @@ class TestUrbanRoutes:
         self.routes_page.click_code_confirmation_button()
         phone_number_added = self.routes_page.get_phone_number()
         assert phone_number_added == phone_number
-        time.sleep(7)
 
-    # 4 Agrega una tarjeta al método de pago
+
+    # 4 Agrega una tarjeta al métod de pago
     def test_add_card(self):
         self.test_add_phone_number()
         self.routes_page.click_payment_method_button()
@@ -217,7 +217,7 @@ class TestUrbanRoutes:
         card_checkbox_checked = self.routes_page.is_card_1_checked()
         assert card_checkbox_checked
         self.routes_page.click_close_payment_method_window()
-        time.sleep(7)
+
 
     # 5 Envía un mensaje al conductor
     def test_send_driver_message(self):
@@ -226,7 +226,7 @@ class TestUrbanRoutes:
         self.routes_page.set_driver_msg(msg)
         driver_msg = self.routes_page.get_driver_msg()
         assert driver_msg == msg
-        time.sleep(7)
+
 
     # 6 Agrega pañuelos y mantas
     def test_order_handkerchief_blanket(self):
@@ -234,7 +234,7 @@ class TestUrbanRoutes:
         self.routes_page.click_handkerchief_blanket()
         switch_checked = self.routes_page.is_switch_checked()
         assert switch_checked, "El checkbox de la clase 'switch-input' no está encendido"
-        time.sleep(7)
+
 
     # 7 Agrega la cantidad de helado
     def test_order_icecream(self):
@@ -243,7 +243,7 @@ class TestUrbanRoutes:
         self.routes_page.add_icecream_amount(icecream_amount)
         icecream_value = self.routes_page.get_icecream_amount()
         assert icecream_value == icecream_amount
-        time.sleep(7)
+
 
     # 8 Pedir el taxi ya con todos los items solicitados
     def test_order_taxi(self):
@@ -252,7 +252,7 @@ class TestUrbanRoutes:
         wait_for_driver_arrival_message(self.driver, UrbanRoutesPage.order_header_title)
         arrival_message = self.routes_page.get_driver_arrival_message()
         assert "El conductor llegará" in arrival_message
-        time.sleep(7)
+
 
     @classmethod
     def teardown_class(cls):
@@ -268,7 +268,7 @@ phone_number = '+1 123 123 12 12'
 card_number, card_code = '1234 5678 9100', '112'
 message_for_driver = 'Traiga un Aperitivo'
 ```
-### Contenido del Archivo Metodos
+### Contenido del Archivo Urban_Routes_Page.py
 Coontiene los Localizadores y las fuunciones para ejecutar las pruebas de los elementos
 ```sh
 from selenium.webdriver.common.keys import Keys
@@ -277,19 +277,20 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
 
-
-# CORRECCION: Creación del archivo urban_routes_page donde están las funciones de la página
+# LOCALIZADORES
 class UrbanRoutesPage:
-    from_field = (By.ID, 'from')
-    to_field = (By.ID, 'to')
+    from_field = (By.ID, 'from') #click
+    to_field = (By.ID, 'to') #click
     ask_taxi_button = (By.XPATH, ".//div[@class='workflow']//button[text()='Pedir un taxi']")
-    comfort_button = (By.XPATH, ".//div[@class='tcard-icon']//img[@alt='Comfort']")
-    phone_number_button = (By.XPATH, ".//div[@class='np-text']")
+    comfort_button = (By.XPATH, "//div[@class='tcard-title' and text()='Comfort']")
+    comfort_button_text = (By.XPATH, "//div[@class='tcard-title' and text()='Comfort']")
+    phone_number_button = (By.CLASS_NAME, 'np-text')
     phone_number_field = (By.XPATH, ".//input[@id='phone']")
     phone_number_next_button = (By.XPATH, ".//div[@class='modal']//button[text()='Siguiente']")
     code_sms_field = (By.XPATH, ".//input[@id='code']")
     confirm_code_button = (By.XPATH, ".//div[@class='modal']//button[text()='Confirmar']")
-    payment_method_button = (By.CSS_SELECTOR, '.pp-button')
+    payment_method_button = (By.CLASS_NAME, 'pp-text')
+    change_focus = (By.CLASS_NAME, 'section active unusual')
     add_card_number_button = (By.CSS_SELECTOR, '.disabled.pp-row')
     card_number_field = (By.XPATH, ".//input[@id='number']")
     card_code_field = (By.XPATH, ".//div[@class='card-code-input']/input[@id='code']")
@@ -303,6 +304,7 @@ class UrbanRoutesPage:
     order_taxi_button = (By.CSS_SELECTOR, '.smart-button-main')
     order_header_title = (By.CSS_SELECTOR, '.order-header-title')
 
+# ACCIONES
     def __init__(self, driver):
         self.driver = driver
 
@@ -325,8 +327,15 @@ class UrbanRoutesPage:
     def click_request_taxi_button(self):
        return WebDriverWait(self.driver, 15).until(EC.element_to_be_clickable(self.ask_taxi_button)).click()
 
+    def wait_load_comfort_taxi(self):
+        WebDriverWait(self.driver, 30).until(
+            EC.visibility_of_element_located(self.comfort_button))
+
     def click_comfort_button(self):
-        return WebDriverWait(self.driver, 15).until(EC.element_to_be_clickable(self.comfort_button)).click()
+        self.driver.find_element(*self.comfort_button).click()
+
+    def get_comfort_text(self):
+        return self.driver.find_element(*self.comfort_button_text).text
 
     def get_comfort_taxi(self):
         return self.driver.find_element(*self.comfort_button).get_property('alt')
@@ -421,8 +430,10 @@ class UrbanRoutesPage:
 
     def get_driver_arrival_message(self):
         return self.driver.find_element(*self.order_header_title).text
+
+
 ```
-### Contenido del archivo Telephone_code.py
+### Contenido del archivo Helpers.py
 Contiene el codigo para extraer un ID o Codigo numerico para el campo "Numero de Telefono"
 ```sh
 import json
@@ -480,6 +491,17 @@ José Sánchez, 14Avo grupo,sprint 8
 PROYECTO SPRINT 8
 
 **Espero con gusto tu Feedback Te leo**
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -4,19 +4,20 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
 
-
-# CORRECCION: Creación del archivo urban_routes_page donde están las funciones de la página
+# LOCALIZADORES
 class UrbanRoutesPage:
-    from_field = (By.ID, 'from')
-    to_field = (By.ID, 'to')
+    from_field = (By.ID, 'from') #click
+    to_field = (By.ID, 'to') #click
     ask_taxi_button = (By.XPATH, ".//div[@class='workflow']//button[text()='Pedir un taxi']")
-    comfort_button = (By.XPATH, ".//div[@class='tcard-icon']//img[@alt='Comfort']")
-    phone_number_button = (By.XPATH, ".//div[@class='np-text']")
+    comfort_button = (By.XPATH, "//div[@class='tcard-title' and text()='Comfort']")
+    comfort_button_text = (By.XPATH, "//div[@class='tcard-title' and text()='Comfort']")
+    phone_number_button = (By.CLASS_NAME, 'np-text')
     phone_number_field = (By.XPATH, ".//input[@id='phone']")
     phone_number_next_button = (By.XPATH, ".//div[@class='modal']//button[text()='Siguiente']")
     code_sms_field = (By.XPATH, ".//input[@id='code']")
     confirm_code_button = (By.XPATH, ".//div[@class='modal']//button[text()='Confirmar']")
-    payment_method_button = (By.CSS_SELECTOR, '.pp-button')
+    payment_method_button = (By.CLASS_NAME, 'pp-text')
+    change_focus = (By.CLASS_NAME, 'section active unusual')
     add_card_number_button = (By.CSS_SELECTOR, '.disabled.pp-row')
     card_number_field = (By.XPATH, ".//input[@id='number']")
     card_code_field = (By.XPATH, ".//div[@class='card-code-input']/input[@id='code']")
@@ -30,6 +31,7 @@ class UrbanRoutesPage:
     order_taxi_button = (By.CSS_SELECTOR, '.smart-button-main')
     order_header_title = (By.CSS_SELECTOR, '.order-header-title')
 
+# ACCIONES
     def __init__(self, driver):
         self.driver = driver
 
@@ -52,8 +54,15 @@ class UrbanRoutesPage:
     def click_request_taxi_button(self):
        return WebDriverWait(self.driver, 15).until(EC.element_to_be_clickable(self.ask_taxi_button)).click()
 
+    def wait_load_comfort_taxi(self):
+        WebDriverWait(self.driver, 30).until(
+            EC.visibility_of_element_located(self.comfort_button))
+
     def click_comfort_button(self):
-        return WebDriverWait(self.driver, 15).until(EC.element_to_be_clickable(self.comfort_button)).click()
+        self.driver.find_element(*self.comfort_button).click()
+
+    def get_comfort_text(self):
+        return self.driver.find_element(*self.comfort_button_text).text
 
     def get_comfort_taxi(self):
         return self.driver.find_element(*self.comfort_button).get_property('alt')

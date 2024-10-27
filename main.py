@@ -1,11 +1,9 @@
 import data
-import time
 from selenium import webdriver
-from Metodos import UrbanRoutesPage
-from selenium.webdriver.common.keys import Keys
-from Telephone_code import retrieve_phone_code
-from Telephone_code import wait_for_load_page
-from Telephone_code import wait_for_driver_arrival_message
+from Urban_Routes_Pages import UrbanRoutesPage
+from Helpers import retrieve_phone_code
+from Helpers import wait_for_load_page
+from Helpers import wait_for_driver_arrival_message
 
 
 class TestUrbanRoutes:
@@ -31,16 +29,16 @@ class TestUrbanRoutes:
         self.routes_page.set_route(address_from, address_to)
         assert self.routes_page.get_from() == address_from
         assert self.routes_page.get_to() == address_to
-        time.sleep(7)
 
     # 2 Selecciona la opción Comfort
     def test_request_taxi_comfort(self):
         self.test_set_route()
         self.routes_page.click_request_taxi_button()
+        self.routes_page.wait_load_comfort_taxi()
         self.routes_page.click_comfort_button()
-        taxi_type = self.routes_page.get_comfort_taxi()
-        assert 'Comfort' == taxi_type
-        time.sleep(7)
+        taxi_type = self.routes_page.get_comfort_text()
+        assert taxi_type == 'Comfort'
+
 
     # 3 Agrega el número telefonico
     def test_add_phone_number(self):
@@ -54,7 +52,7 @@ class TestUrbanRoutes:
         self.routes_page.click_code_confirmation_button()
         phone_number_added = self.routes_page.get_phone_number()
         assert phone_number_added == phone_number
-        time.sleep(7)
+
 
     # 4 Agrega una tarjeta al métod de pago
     def test_add_card(self):
@@ -68,7 +66,7 @@ class TestUrbanRoutes:
         card_checkbox_checked = self.routes_page.is_card_1_checked()
         assert card_checkbox_checked
         self.routes_page.click_close_payment_method_window()
-        time.sleep(7)
+
 
     # 5 Envía un mensaje al conductor
     def test_send_driver_message(self):
@@ -77,7 +75,7 @@ class TestUrbanRoutes:
         self.routes_page.set_driver_msg(msg)
         driver_msg = self.routes_page.get_driver_msg()
         assert driver_msg == msg
-        time.sleep(7)
+
 
     # 6 Agrega pañuelos y mantas
     def test_order_handkerchief_blanket(self):
@@ -85,7 +83,7 @@ class TestUrbanRoutes:
         self.routes_page.click_handkerchief_blanket()
         switch_checked = self.routes_page.is_switch_checked()
         assert switch_checked, "El checkbox de la clase 'switch-input' no está encendido"
-        time.sleep(7)
+
 
     # 7 Agrega la cantidad de helado
     def test_order_icecream(self):
@@ -94,7 +92,7 @@ class TestUrbanRoutes:
         self.routes_page.add_icecream_amount(icecream_amount)
         icecream_value = self.routes_page.get_icecream_amount()
         assert icecream_value == icecream_amount
-        time.sleep(7)
+
 
     # 8 Pedir el taxi ya con todos los items solicitados
     def test_order_taxi(self):
@@ -103,7 +101,7 @@ class TestUrbanRoutes:
         wait_for_driver_arrival_message(self.driver, UrbanRoutesPage.order_header_title)
         arrival_message = self.routes_page.get_driver_arrival_message()
         assert "El conductor llegará" in arrival_message
-        time.sleep(7)
+
 
     @classmethod
     def teardown_class(cls):
