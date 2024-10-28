@@ -9,8 +9,8 @@ class UrbanRoutesPage:
     from_field = (By.ID, 'from') #click
     to_field = (By.ID, 'to') #click
     ask_taxi_button = (By.XPATH, ".//div[@class='workflow']//button[text()='Pedir un taxi']")
-    comfort_button = (By.XPATH, "//div[@class='tcard-title' and text()='Comfort']")
-    comfort_button_text = (By.XPATH, "//div[@class='tcard-title' and text()='Comfort']")
+    comfort_button = (By.CSS_SELECTOR, "div.tcard:nth-child(5)>div:nth-child(3)")
+    comfort_button_text = (By.CLASS_NAME, 'r-sw-label')
     phone_number_button = (By.CLASS_NAME, 'np-text')
     phone_number_field = (By.XPATH, ".//input[@id='phone']")
     phone_number_next_button = (By.XPATH, ".//div[@class='modal']//button[text()='Siguiente']")
@@ -63,6 +63,9 @@ class UrbanRoutesPage:
 
     def get_comfort_text(self):
         return self.driver.find_element(*self.comfort_button_text).text
+
+    def insert_comfort_button(self):
+        self.click_comfort_button()
 
     def get_comfort_taxi(self):
         return self.driver.find_element(*self.comfort_button).get_property('alt')

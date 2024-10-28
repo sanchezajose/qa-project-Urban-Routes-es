@@ -35,9 +35,8 @@ class TestUrbanRoutes:
         self.test_set_route()
         self.routes_page.click_request_taxi_button()
         self.routes_page.wait_load_comfort_taxi()
-        self.routes_page.click_comfort_button()
-        taxi_type = self.routes_page.get_comfort_text()
-        assert taxi_type == 'Comfort'
+        self.routes_page.insert_comfort_button()
+        assert self.routes_page.get_comfort_text() == 'Manta y pañuelos'
 
 
     # 3 Agrega el número telefonico
